@@ -1169,5 +1169,42 @@ static std::string createRv1106Stream(const CameraSettings& settings) {
   return ss.str();
 }
 
+/**
+ * For rkmpp Rockchips (rv1126)
+ */
+
+static std::string createRv1126Stream(const CameraSettings& settings) {
+  std::stringstream ss;
+
+  ss << fmt::format("v4l2src device=/dev/video0 ! ");
+
+    const int bps =
+      openhd::kbits_to_bits_per_second(settings.h26x_bitrate_kbits) / 2;
+  const int BPS_ACTUAL_LIMIT = 6650000;
+  const int BPS_MAX_LIMIT = 7000000;
+  const int BPS_MIN_LIMIT = 6300000;
+
+  int bps_actual = std::min((bps * 95) / 100, BPS_ACTUAL_LIMIT);
+  int bps_min = std::min((bps * 90) / 100, BPS_MIN_LIMIT);
+  int bps_max = std::min(bps, BPS_MAX_LIMIT);
+
+  if (settings.streamed_video_format.videoCodec == VideoCodec::H264) {
+    ss << " mpph264enc";
+  } else {
+    ss << " mpph265enc";
+  }
+
+  ss << " bps=" << bps_actual;
+  ss << " bps-max=" << bps_max;
+  ss << " bps-min=" << bps_min;
+  ss << " qp-min=" << settings.qp_min;
+  ss << " qp-max=" << settings.qp_max;
+
+  ss << " gop=5";
+
+  ss << " ! ";
+  return ss.str();
+}
+
 }  // namespace OHDGstHelper
 #endif  // OPENHD_OHDGSTHELPER_H
