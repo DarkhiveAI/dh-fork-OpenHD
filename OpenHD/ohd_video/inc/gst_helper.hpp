@@ -1178,7 +1178,7 @@ static std::string createRv1126Stream(const CameraSettings& settings) {
 
   ss << fmt::format("v4l2src device=/dev/video0 ! ");
 
-    const int bps =
+  const int bps =
       openhd::kbits_to_bits_per_second(settings.h26x_bitrate_kbits) / 2;
   const int BPS_ACTUAL_LIMIT = 6650000;
   const int BPS_MAX_LIMIT = 7000000;
